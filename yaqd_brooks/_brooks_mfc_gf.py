@@ -41,11 +41,13 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
             self._state["position"] = msg["primary_variable"]
 
     def _set_position(self, position):
-        units_code = 250 # sets units of decimal or position to be in the same units as the flow
+        units_code = 250  # sets units of decimal or position to be in the same units as the flow
 
         # setting a command not defined in hart_protocol
         data = struct.pack(">Bf", units_code, position)
-        command = hart_protocol.tools.pack_command(address=self._ser.address, command_id=236, data=data)
+        command = hart_protocol.tools.pack_command(
+            address=self._ser.address, command_id=236, data=data
+        )
         self._ser.write(command)
 
     async def update_state(self):
