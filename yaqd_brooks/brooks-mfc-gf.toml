@@ -31,8 +31,6 @@ type = "string"
 doc = "Unique address in the HART protocol network."
 default = "none"
 
-
-
 [messages]
 
 [messages.get_rate]
