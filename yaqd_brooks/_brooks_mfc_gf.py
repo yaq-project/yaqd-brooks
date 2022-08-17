@@ -22,10 +22,12 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
         if config["serial_port"] in BrooksMfcGf.hart_dispatchers:
             self._ser = BrooksMfcGf.hart_dispatchers[config["serial_port"]]
         else:
-            self._ser = HartDispatcher(config["serial_port"], 
-                                       baudrate=config["baud_rate"],
-                                       parity=config["parity"],
-                                       stop_bits=config["stop_bits"])
+            self._ser = HartDispatcher(
+                config["serial_port"],
+                baudrate=config["baud_rate"],
+                parity=config["parity"],
+                stop_bits=config["stop_bits"],
+            )
             BrooksMfcGf.hart_dispatchers[config["serial_port"]] = self._ser
         self._ser.instances[self._config["address"]] = self
         self._ser.address = self._config["address"]
@@ -55,10 +57,9 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
 
     async def update_state(self):
         while True:
-            
+
             self._ser.write(hart_protocol.universal.read_primary_variable(self._config["address"]))
-            #if abs(self._state["position"] - self._state["destination"]) < 1.0:
+            # if abs(self._state["position"] - self._state["destination"]) < 1.0:
             #    self._busy = False
-            
+
             await asyncio.sleep(0.1)
-            
