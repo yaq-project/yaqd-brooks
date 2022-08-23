@@ -15,4 +15,4 @@ This package contains the following daemon(s):
 
 Maintainers:
 
-- [Blaise Thompson](https://github.com/untzag) 
+- [Blaise Thompson](https://github.com/untzag)
