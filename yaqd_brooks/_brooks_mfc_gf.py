@@ -4,7 +4,7 @@ __all__ = ["BrooksMfcGf"]
 import asyncio
 from typing import Dict, Any, List
 import struct
-import serial
+import serial  # type: ignore
 
 from yaqd_core import HasLimits, HasPosition, UsesSerial, UsesUart, IsDaemon
 import hart_protocol
