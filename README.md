@@ -7,7 +7,7 @@
 [![ver](https://img.shields.io/badge/calver-YYYY.M.MICRO-blue)](https://calver.org/)
 [![log](https://img.shields.io/badge/change-log-informational)](https://github.com/yaq-project/yaqd-brooks/-/blob/main/CHANGELOG.md)
 
-yaq daemon for brooks instruments hardware
+yaq daemons for Brooks industrial instrumentation
 
 This package contains the following daemon(s):
 
@@ -15,4 +15,4 @@ This package contains the following daemon(s):
 
 Maintainers:
 
-- This package is currently unmaintained!
+- [Blaise Thompson](https://github.com/untzag) 
