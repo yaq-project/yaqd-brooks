@@ -19,6 +19,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - initial release
 
 [Unreleased]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.1...main
-[Unreleased]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.0...v2022.8.1
+[2022.8.1]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.0...v2022.8.1
 [2022.8.0]: https://github.com/yaq-project/yaqd-brooks/-/tags/v2022.8.0
 
