@@ -3,7 +3,7 @@ import re
 
 import hart_protocol
 from yaqd_core import aserial, logging
-import serial
+import serial  # type: ignore
 
 
 class HartDispatcher:
