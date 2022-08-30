@@ -3,7 +3,7 @@ import re
 
 import hart_protocol
 from yaqd_core import aserial, logging
-import serial
+import serial  # type: ignore
 
 
 class HartDispatcher:
@@ -12,15 +12,24 @@ class HartDispatcher:
         self.port.parity = parity
         self.port.stop_bits = stop_bits
         self.instances = {}
-        self.write_queue = asyncio.Queue()
+        self.write_queue = list()
         self.loop = asyncio.get_event_loop()
         self.unpacker = hart_protocol.Unpacker(self.port)
         self.tasks = [
+            self.loop.create_task(self.do_writes()),
             self.loop.create_task(self.read_dispatch()),
         ]
 
     def write(self, data):
-        self.port.write(data)
+        if data not in self.write_queue:
+            self.write_queue.append(data)
+
+    async def do_writes(self):
+        while True:
+            if self.write_queue:
+                data = self.write_queue.pop(0)
+                self.port.write(data)
+                await asyncio.sleep(0.1)
 
     async def read_dispatch(self):
         while True:

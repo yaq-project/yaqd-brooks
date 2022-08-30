@@ -30,7 +30,6 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
             )
             BrooksMfcGf.hart_dispatchers[config["serial_port"]] = self._ser
         self._ser.instances[self._config["address"]] = self
-        self._ser.address = self._config["address"]
 
     def close(self):
         self._ser.flush()
@@ -51,15 +50,14 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
         # setting a command not defined in hart_protocol
         data = struct.pack(">Bf", units_code, position)
         command = hart_protocol.tools.pack_command(
-            address=self._ser.address, command_id=236, data=data
+            address=self._config["address"], command_id=236, data=data
         )
         self._ser.write(command)
 
     async def update_state(self):
         while True:
-
             self._ser.write(hart_protocol.universal.read_primary_variable(self._config["address"]))
-            # if abs(self._state["position"] - self._state["destination"]) < 1.0:
-            #    self._busy = False
+            if abs(self._state["position"] - self._state["destination"]) < 1.0:
+                self._busy = False
 
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.25)
