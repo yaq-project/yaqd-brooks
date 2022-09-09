@@ -30,7 +30,7 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
             )
             BrooksMfcGf.hart_dispatchers[config["serial_port"]] = self._ser
         self._ser.instances[self._config["address"]] = self
-        self._units = "ml/min"
+        #self._units = "ml/min"
         self.units_check()
 
     def close(self):
