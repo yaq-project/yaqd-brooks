@@ -39,7 +39,7 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
 
     def units_check(self):
         # see Section 9-1 Brooks GF Series S-Protocol documentation
-        flow_reference = 0 
+        flow_reference = 0
         flow_unit = 171
         data = struct.pack(">BB", flow_reference, flow_unit)
         command = hart_protocol.tools.pack_command(
