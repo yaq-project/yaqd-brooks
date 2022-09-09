@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed
+- saw many collisions when working on bus with multiple MFCs, added wait in write queue
+- MFCs will report busy if position is different than destination
+- pinned hart-protocol to ensure upstream fixes applied here
+
 ## [2022.8.1]
 
 ### Changed

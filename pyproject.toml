@@ -9,7 +9,7 @@ author = "yaq developers"
 home-page = "https://yaq.fyi"
 description-file = "README.md"
 requires-python = ">=3.7"
-requires = ["hart-protocol>=2022.8.1",
+requires = ["hart-protocol>=2022.8.2",
             "pyserial",
             "yaqd-core>=2020.06.3"]
 classifiers = [
