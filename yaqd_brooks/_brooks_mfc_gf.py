@@ -30,10 +30,22 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
             )
             BrooksMfcGf.hart_dispatchers[config["serial_port"]] = self._ser
         self._ser.instances[self._config["address"]] = self
+        # self._units = "ml/min"
+        self.units_check()
 
     def close(self):
         self._ser.flush()
         self._ser.close()
+
+    def units_check(self):
+        # see Section 9-1 Brooks GF Series S-Protocol documentation
+        flow_reference = 0
+        flow_unit = 171
+        data = struct.pack(">BB", flow_reference, flow_unit)
+        command = hart_protocol.tools.pack_command(
+            address=self._config["address"], command_id=196, data=data
+        )
+        self._ser.write(command)
 
     def direct_serial_write(self, _bytes):
         self._ser.write(_bytes)
@@ -47,7 +59,6 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
 
     def _set_position(self, position):
         units_code = 250
-        # setting a command not defined in hart_protocol
         data = struct.pack(">Bf", units_code, position)
         command = hart_protocol.tools.pack_command(
             address=self._config["address"], command_id=236, data=data
