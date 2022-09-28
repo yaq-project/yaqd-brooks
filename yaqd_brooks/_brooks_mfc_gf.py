@@ -5,6 +5,7 @@ import asyncio
 from typing import Dict, Any, List
 import struct
 import serial  # type: ignore
+import math
 
 from yaqd_core import HasLimits, HasPosition, UsesSerial, UsesUart, IsDaemon
 import hart_protocol
@@ -31,13 +32,14 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
             BrooksMfcGf.hart_dispatchers[config["serial_port"]] = self._ser
         self._ser.instances[self._config["address"]] = self
         # self._units = "ml/min"
-        self.units_check()
+        self._units_check()
+        self._loop.create_task(self._read_hw_limits())
 
     def close(self):
         self._ser.flush()
         self._ser.close()
 
-    def units_check(self):
+    def _units_check(self):
         # see Section 9-1 Brooks GF Series S-Protocol documentation
         flow_reference = 0
         flow_unit = 171
@@ -56,9 +58,28 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
     def _process_response(self, msg):
         if msg.command == 1:
             self._state["position"] = msg.primary_variable
+            if self._state["position"] < 0:
+                self._state["position"] == 0
+        elif msg.command == 14:  # read primary variable information
+            # the values I get here are off by a factor I do not understand
+            # still, they scale---faster MFCs give larger limits
+            # I will keep this for now ---Blaise 2022-09-28
+            self._state["hw_limits"][0] = msg.lower_limit
+            self._state["hw_limits"][1] = msg.upper_limit
+
+    async def _read_hw_limits(self):
+        while True:
+            command = hart_protocol.universal.read_primary_variable_information(self._config["address"])
+            self._ser.write(command)
+            await asyncio.sleep(1)
+            if all([not math.isnan(v) for v in self._state["hw_limits"]]):
+                break
 
     def _set_position(self, position):
-        units_code = 250
+        if position == 0:
+            # this is a "hack" to FORCE the MFC closed
+            position = -100
+        units_code = 171
         data = struct.pack(">Bf", units_code, position)
         command = hart_protocol.tools.pack_command(
             address=self._config["address"], command_id=236, data=data
@@ -70,5 +91,4 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
             self._ser.write(hart_protocol.universal.read_primary_variable(self._config["address"]))
             if abs(self._state["position"] - self._state["destination"]) < 1.0:
                 self._busy = False
-
             await asyncio.sleep(0.25)
