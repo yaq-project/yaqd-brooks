@@ -69,7 +69,9 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
 
     async def _read_hw_limits(self):
         while True:
-            command = hart_protocol.universal.read_primary_variable_information(self._config["address"])
+            command = hart_protocol.universal.read_primary_variable_information(
+                self._config["address"]
+            )
             self._ser.write(command)
             await asyncio.sleep(1)
             if all([not math.isnan(v) for v in self._state["hw_limits"]]):
