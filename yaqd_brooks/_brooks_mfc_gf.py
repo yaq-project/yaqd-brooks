@@ -8,18 +8,20 @@ import serial  # type: ignore
 import math
 import numpy as np
 
-from yaqd_core import HasTransformedPosition, HasLimits, HasPosition, UsesSerial, UsesUart, IsDaemon
+from yaqd_core import (
+    HasTransformedPosition,
+    HasLimits,
+    HasPosition,
+    UsesSerial,
+    UsesUart,
+    IsDaemon,
+)
 import hart_protocol
 
 from ._dispatcher import HartDispatcher
 
 
-class BrooksMfcGf(HasTransformedPosition,
-                  HasLimits,
-                  HasPosition,
-                  UsesUart,
-                  UsesSerial,
-                  IsDaemon):
+class BrooksMfcGf(HasTransformedPosition, HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
     _kind = "brooks-mfc-gf"
 
     hart_dispatchers: Dict[str, HartDispatcher] = {}
