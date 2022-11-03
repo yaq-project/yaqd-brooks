@@ -1,6 +1,6 @@
 protocol = "brooks-mfc-gf"
 doc = ""
-traits = ["has-limits", "has-position", "uses-uart", "uses-serial", "is-daemon"]
+traits = ["has-transformed-position", "has-limits", "has-position", "uses-uart", "uses-serial", "is-daemon"]
 
 [links]
 source = "https://github.com/yaq-project/yaqd-brooks"
@@ -9,12 +9,17 @@ bugtracker = "https://github.com/yaq-project/yaqd-brooks/-/issues"
 [installation]
 PyPI = "https://pypi.org/project/yaqd-brooks"
 
+[[types]]
+type = "record"
+name = "calibration_point"
+fields = [{"name"="setpoint", "type"="double"},
+          {"name"="measured", "type"="double"}]
+
 [config]
 
 [config.address]
 doc = "brooks-mfc-address within RS-485 network"
 type = "int"
-
 
 [config.stop_bits]
 type = {"type"="enum", "name"="stop_bits", "symbols"=["one", "one_and_half", "two"]}
@@ -30,6 +35,11 @@ default = "O"
 type = "string"
 doc = "Unique address in the HART protocol network."
 default = "none"
+
+[config.calibration]
+type = {"type"="array", "items"="calibration_point"}
+doc = "Array of calibration points for MFC, in units."
+default = []
 
 [messages]
 

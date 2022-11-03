@@ -6,14 +6,20 @@ from typing import Dict, Any, List
 import struct
 import serial  # type: ignore
 import math
+import numpy as np
 
-from yaqd_core import HasLimits, HasPosition, UsesSerial, UsesUart, IsDaemon
+from yaqd_core import HasTransformedPosition, HasLimits, HasPosition, UsesSerial, UsesUart, IsDaemon
 import hart_protocol
 
 from ._dispatcher import HartDispatcher
 
 
-class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
+class BrooksMfcGf(HasTransformedPosition,
+                  HasLimits,
+                  HasPosition,
+                  UsesUart,
+                  UsesSerial,
+                  IsDaemon):
     _kind = "brooks-mfc-gf"
 
     hart_dispatchers: Dict[str, HartDispatcher] = {}
@@ -31,7 +37,7 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
             )
             BrooksMfcGf.hart_dispatchers[config["serial_port"]] = self._ser
         self._ser.instances[self._config["address"]] = self
-        # self._units = "ml/min"
+        self._units = "ml/min"
         self._units_check()
         self._loop.create_task(self._read_hw_limits())
 
@@ -77,6 +83,11 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
             if all([not math.isnan(v) for v in self._state["hw_limits"]]):
                 break
 
+    def _relative_to_transformed(self, relative_position):
+        xp = [p["setpoint"] for p in self._config["calibration"]]
+        fp = [p["measured"] for p in self._config["calibration"]]
+        return np.interp(relative_position, xp, fp)
+
     def _set_position(self, position):
         if position == 0:
             # this is a "hack" to FORCE the MFC closed
@@ -87,6 +98,11 @@ class BrooksMfcGf(HasLimits, HasPosition, UsesUart, UsesSerial, IsDaemon):
             address=self._config["address"], command_id=236, data=data
         )
         self._ser.write(command)
+
+    def _transformed_to_relative(self, transformed_position):
+        xp = [p["measured"] for p in self._config["calibration"]]
+        fp = [p["setpoint"] for p in self._config["calibration"]]
+        return np.interp(transformed_position, xp, fp)
 
     async def update_state(self):
         while True:
