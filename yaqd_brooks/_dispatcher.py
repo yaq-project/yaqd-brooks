@@ -26,7 +26,7 @@ class HartDispatcher:
 
     async def do_writes(self):
         while True:
-            if self.write_queue:               
+            if self.write_queue:
                 data = self.write_queue.pop(0)
                 self.port.write(data)
             await asyncio.sleep(0.1)

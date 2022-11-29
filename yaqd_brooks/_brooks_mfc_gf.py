@@ -114,4 +114,3 @@ class BrooksMfcGf(HasTransformedPosition, HasLimits, HasPosition, UsesUart, Uses
             if abs(self._state["position"] - self._state["destination"]) < 1.0:
                 self._busy = False
             await asyncio.sleep(0.25)
-
