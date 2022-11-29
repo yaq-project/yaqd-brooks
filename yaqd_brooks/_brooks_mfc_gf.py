@@ -40,6 +40,7 @@ class BrooksMfcGf(HasTransformedPosition, HasLimits, HasPosition, UsesUart, Uses
             BrooksMfcGf.hart_dispatchers[config["serial_port"]] = self._ser
         self._ser.instances[self._config["address"]] = self
         self._units = "ml/min"
+        self._native_units = "ml/min"
         self._units_check()
         self._loop.create_task(self._read_hw_limits())
 
@@ -61,7 +62,7 @@ class BrooksMfcGf(HasTransformedPosition, HasLimits, HasPosition, UsesUart, Uses
         self._ser.write(_bytes)
 
     def get_position(self):
-        return self._state["position"]
+        return self.to_transformed(self._state["position"])
 
     def _process_response(self, msg):
         if msg.command == 1:
@@ -88,7 +89,8 @@ class BrooksMfcGf(HasTransformedPosition, HasLimits, HasPosition, UsesUart, Uses
     def _relative_to_transformed(self, relative_position):
         xp = [p["setpoint"] for p in self._config["calibration"]]
         fp = [p["measured"] for p in self._config["calibration"]]
-        return np.interp(relative_position, xp, fp)
+        out = np.interp(relative_position, xp, fp)
+        return out
 
     def _set_position(self, position):
         if position == 0:
