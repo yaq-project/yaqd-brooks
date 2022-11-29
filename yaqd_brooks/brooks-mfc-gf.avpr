@@ -9,7 +9,16 @@
             "type": "int"
         },
         "calibration": {
-            "default": [],
+            "default": [
+                {
+                    "measured": 0.0,
+                    "setpoint": 0.0
+                },
+                {
+                    "measured": 1000000.0,
+                    "setpoint": 1000000.0
+                }
+            ],
             "doc": "Array of calibration points for MFC, in units.",
             "type": {
                 "items": "calibration_point",
@@ -126,11 +135,6 @@
                 ],
                 "type": "enum"
             }
-        },
-        "tag": {
-            "default": "none",
-            "doc": "Unique address in the HART protocol network.",
-            "type": "string"
         }
     },
     "doc": "",
