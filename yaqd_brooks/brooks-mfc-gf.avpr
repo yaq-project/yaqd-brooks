@@ -142,6 +142,10 @@
             "type": "double"
         }
     },
+    "hardware": [
+        "brooks:gf40",
+        "brooks:gf80"
+    ],
     "installation": {
         "PyPI": "https://pypi.org/project/yaqd-brooks"
     },
