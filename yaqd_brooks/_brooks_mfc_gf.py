@@ -113,4 +113,7 @@ class BrooksMfcGf(HasTransformedPosition, HasLimits, HasPosition, UsesUart, Uses
             self._ser.write(hart_protocol.universal.read_primary_variable(self._config["address"]))
             if abs(self._state["position"] - self._state["destination"]) < 1.0:
                 self._busy = False
+            if self._state["destination"] == 0.0:
+                if self._state["position"] < 1.0:
+                    self._busy = False
             await asyncio.sleep(0.25)
