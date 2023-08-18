@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2023.8.0]
+
 ### Fixed
 - saw many collisions when working on bus with multiple MFCs, added wait in write queue
 - MFCs will report busy if position is different than destination
@@ -24,7 +26,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.1...main
+[Unreleased]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2023.8.0...main
+[2023.8.0]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.1...v2023.8.0
 [2022.8.1]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.0...v2022.8.1
 [2022.8.0]: https://github.com/yaq-project/yaqd-brooks/-/tags/v2022.8.0
 
