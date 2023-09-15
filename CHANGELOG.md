@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+- note of sla5800 series support
+
 ## [2023.8.0]
 
 ### Fixed
