@@ -1,7 +1,7 @@
 protocol = "brooks-mfc-gf"
 doc = ""
 traits = ["has-transformed-position", "has-limits", "has-position", "uses-uart", "uses-serial", "is-daemon"]
-hardware = ["brooks:gf40", "brooks:gf80"]
+hardware = ["brooks:gf40", "brooks:gf80", "brooks:sla5800"]
 
 [links]
 source = "https://github.com/yaq-project/yaqd-brooks"
