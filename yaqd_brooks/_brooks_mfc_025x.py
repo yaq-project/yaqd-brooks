@@ -97,7 +97,7 @@ class BrooksMfc025x(
         command = "AZ"
         if address:
             command += f"{address:05}"
-   	command += f".{port:02}P{parameter:02}={position:.2f}\r\n"
+        command += f".{port:02}P{parameter:02}={position:.2f}\r\n"
         self._ser.write(command.encode())
 
     def _transformed_to_relative(self, transformed_position):
