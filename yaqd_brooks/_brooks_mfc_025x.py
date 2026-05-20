@@ -46,7 +46,7 @@ def parse_response(raw: bytes) -> Response:
         address=int(address),
         port=int(port),
         non_resetable_totalizer_value=float(lis[4]),
-        totalizer_value=float(lis[5])
+        totalizer_value=float(lis[5]),
         value=float(lis[7]),
         checksum=checksum.encode(),
         checksum_valid=True,
