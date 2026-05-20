@@ -67,7 +67,7 @@ def parse_response(raw: bytes) -> Response:
     )
 
 
-parity_options = {"even": "E", "odd": "O"}
+parity_options = {"even": serial.PARITY_EVEN, "odd": serial.PARITY_ODD, "none": serial.PARITY_NONE}
 
 stop_bit_options = {"one": 1, "one_and_half": 1.5, "two": 2}
 
