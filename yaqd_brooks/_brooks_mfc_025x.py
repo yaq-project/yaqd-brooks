@@ -19,23 +19,8 @@ from yaqd_core import (
     aserial,
 )
 
+
 parameters = {"SP Rate": 1, "SP Full Scale": 9}
-
-
-def construct_write(address: int, port: int, parameter: int, value: float) -> bytes:
-    command = "AZ"
-    if address:
-        command += f"{address:05}"
-    command += f".{port:02}P{parameter:02}={value:.2f}\r\n"
-    return command.encode()
-
-
-def construct_query(address: int, port: int, parameter: int) -> bytes:
-    command = "AZ"
-    if address:
-        command += f"{address:05}"
-    command += f".{port:02}P{parameter:02}?\r\n"
-    return command.encode()
 
 
 @dataclass
@@ -43,8 +28,8 @@ class Response:
     predelimiter: str
     address: int
     port: int
-    response_type: int
-    parameter: int
+    non_resetable_totalizer_value: float
+    totalizer_value: float
     value: float
     checksum: bytes
     checksum_valid: bool
@@ -52,16 +37,17 @@ class Response:
 
 def parse_response(raw: bytes) -> Response:
     string = raw.decode().strip()
-    predelimiter, addport, response_type, parameter, value, checksum = string.split(",")
-    address, port = addport.split(".")
+    lis = string.split(",")
+    address, port = lis[1].split(".")
+    checksum = lis[14]
     # TODO CHECKSUM
     return Response(
-        predelimiter=predelimiter,
+        predelimiter=lis[0],
         address=int(address),
         port=int(port),
-        response_type=int(response_type),
-        parameter=int(parameter[1:]),
-        value=float(value),
+        non_resetable_totalizer_value=float(lis[4]),
+        totalizer_value=float(lis[5])
+        value=float(lis[7]),
         checksum=checksum.encode(),
         checksum_valid=True,
     )
@@ -105,10 +91,14 @@ class BrooksMfc025x(
         return out
 
     def _set_position(self, position):
-        command = construct_write(
-            self._config["address"], self._config["physical_port"], parameters["SP Rate"], position
-        )
-        response = self._ser.awrite_then_readline(command)
+	command = "AZ"
+        address = self._config["address"]
+        port = self._config["physical_port"] * 2
+        parameter = parameters["SP Rate"]
+    	if address:
+        	command += f"address:05}"
+   	command += f".{port:02}P{parameter:02}={position:.2f}\r\n"
+        self._ser.write(command.encode())
 
     def _transformed_to_relative(self, transformed_position):
         xp = [p["measured"] for p in self._config["calibration"]]
@@ -117,10 +107,19 @@ class BrooksMfc025x(
 
     async def update_state(self):
         while True:
-            command = construct_query(
-                self._config["address"], self._config["physical_port"], parameters["SP Rate"]
-            )
-            raw = self._ser.awrite_then_readline(command)
+            # construct command
+            address = self._config["address"]
+            port = (self._config["physical port"] * 2) - 1
+            command = "AZ"
+            if address:
+                command += f"{address:05}"
+            command += f".{port:02}K\r\n"
+            # send and recieve
+            async with self._ser._readlock:
+                self._ser.reset_input_buffer()
+                self._ser.reset_output_buffer()
+                raw = await self._ser._awrite_then_readline(command.encode())
+            # parse response
             response = parse_response(raw)
             if response.parameter == parameters["SP Rate"]:
                 self._state["position"] = response.value
