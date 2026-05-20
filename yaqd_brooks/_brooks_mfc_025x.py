@@ -91,12 +91,12 @@ class BrooksMfc025x(
         return out
 
     def _set_position(self, position):
-	command = "AZ"
         address = self._config["address"]
         port = self._config["physical_port"] * 2
         parameter = parameters["SP Rate"]
+	command = "AZ"
     	if address:
-        	command += f"address:05}"
+        	command += f"{address:05}"
    	command += f".{port:02}P{parameter:02}={position:.2f}\r\n"
         self._ser.write(command.encode())
 
