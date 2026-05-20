@@ -96,7 +96,7 @@ class BrooksMfc025x(
         parameter = parameters["SP Rate"]
         command = "AZ"
     	if address:
-        	command += f"{address:05}"
+            command += f"{address:05}"
    	command += f".{port:02}P{parameter:02}={position:.2f}\r\n"
         self._ser.write(command.encode())
 
