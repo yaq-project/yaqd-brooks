@@ -35,18 +35,19 @@ class Response:
 
 
 def parse_response(raw: bytes) -> Response:
+    print("PARSE RESPONSE", raw)
     string = raw.decode().strip()
     lis = string.split(",")
     address, port = lis[1].split(".")
-    checksum = lis[14]
+    checksum = lis[13]
     # TODO CHECKSUM
     return Response(
         predelimiter=lis[0],
         address=int(address),
         port=int(port),
-        non_resetable_totalizer_value=float(lis[4]),
-        totalizer_value=float(lis[5]),
-        value=float(lis[7]),
+        non_resetable_totalizer_value=float(lis[3]),
+        totalizer_value=float(lis[4]),
+        value=float(lis[5]),
         checksum=checksum.encode(),
         checksum_valid=True,
     )
@@ -108,23 +109,29 @@ class BrooksMfc025x(
         while True:
             # construct command
             address = self._config["address"]
-            port = (self._config["physical port"] * 2) - 1
+            port = (self._config["physical_port"] * 2) - 1
             command = "AZ"
             if address:
                 command += f"{address:05}"
             command += f".{port:02}K\r\n"
-            # send and recieve
-            async with self._ser._readlock:
-                self._ser.reset_input_buffer()
-                self._ser.reset_output_buffer()
-                raw = await self._ser._awrite_then_readline(command.encode())
-            # parse response
-            response = parse_response(raw)
-            if response.parameter == parameters["SP Rate"]:
-                self._state["position"] = response.value
+            try:
+                # send and recieve
+                async with self._ser._readlock:
+                    self._ser.reset_input_buffer()
+                    self._ser.reset_output_buffer()
+                    self._ser.write(command.encode())
+                    raw = await self._ser._areadline()
+                # parse response
+                response = parse_response(raw)
+                assert response.port == port
+            except (IndexError, ValueError, AssertionError) as e:
+                print(e)
+                await asyncio.sleep(0.33)
+                continue
+            self._state["position"] = response.value
             if abs(self._state["position"] - self._state["destination"]) < 1.0:
                 self._busy = False
             if self._state["destination"] == 0.0:
                 if self._state["position"] < 1.0:
                     self._busy = False
-            await asyncio.sleep(0.25)
+            await asyncio.sleep(0.1)
