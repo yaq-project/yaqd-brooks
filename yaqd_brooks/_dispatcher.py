@@ -67,14 +67,13 @@ class SerialWriteQueue:
     _instances: Dict[str, SerialWriteQueue] = {}
 
     def __init__(self, serial_port: str, baudrate: int, parity: int, stopbits: float):
-        self._ser = aserial.get_aserial(serial_port, 
-                                        baudrate=baudrate, 
-                                        parity=parity, 
-                                        stopbits=stopbits)
+        self._ser = aserial.get_aserial(
+            serial_port, baudrate=baudrate, parity=parity, stopbits=stopbits
+        )
         self._queue: List[WriteQueueItem] = list()
         self._loop = asyncio.get_running_loop()
         self._loop.create_task(self.consume())
-        
+
     def __new__(cls, serial_port: str, baudrate: int, parity: str, stopbits: float):
         if serial_port not in cls._instances:
             cls._instances[serial_port] = super(SerialWriteQueue, cls).__new__(cls)
@@ -90,4 +89,3 @@ class SerialWriteQueue:
 
     def put(self, item: WriteQueueItem):
         self._queue.append(item)
-

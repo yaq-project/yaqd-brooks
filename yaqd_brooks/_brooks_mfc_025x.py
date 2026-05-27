@@ -120,7 +120,7 @@ class BrooksMfc025x(
             item = WriteQueueItem(command=command, callback=self.update_state_callback)
             self._write_queue.put(item)
             await asyncio.sleep(0.25)
-            
+
         def update_state_callback(self, item):
             response = parse_response(item.response)
             assert response.port == (self._config["physical_port"] * 2) - 1
