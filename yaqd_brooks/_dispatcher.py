@@ -64,7 +64,7 @@ class WriteQueueItem:
 
 
 class SerialWriteQueue:
-    _instances: Dict[str, SerialWriteQueue] = {}
+    _instances: Dict[str, Any] = {}
 
     def __init__(self, serial_port: str, baudrate: int, parity: int, stopbits: float):
         self._ser = aserial.get_aserial(
