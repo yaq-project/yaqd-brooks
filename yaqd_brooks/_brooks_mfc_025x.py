@@ -19,6 +19,8 @@ from yaqd_core import (
     aserial,
 )
 
+from ._dispatcher import WriteQueueItem, SerialWriteQueue
+
 parameters = {"SP Rate": 1, "SP Full Scale": 9}
 
 
@@ -65,7 +67,7 @@ class BrooksMfc025x(
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
-        self._ser = aserial.get_aserial(
+        self._write_queue = SerialWriteQueue(
             config["serial_port"],  # magically ensures single instance per port
             baudrate=config["baud_rate"],
             parity=parity_options[config["parity"]],
@@ -98,7 +100,8 @@ class BrooksMfc025x(
         if address:
             command += f"{address:05}"
         command += f".{port:02}P{parameter:02}={position:.2f}\r\n"
-        self._ser.write(command.encode())
+        item = WriteQueueItem(command=command)
+        self._write_queue.put(item)
 
     def _transformed_to_relative(self, transformed_position):
         xp = [p["measured"] for p in self._config["calibration"]]
@@ -114,24 +117,16 @@ class BrooksMfc025x(
             if address:
                 command += f"{address:05}"
             command += f".{port:02}K\r\n"
-            try:
-                # send and recieve
-                async with self._ser._readlock:
-                    self._ser.reset_input_buffer()
-                    self._ser.reset_output_buffer()
-                    self._ser.write(command.encode())
-                    raw = await self._ser._areadline()
-                # parse response
-                response = parse_response(raw)
-                assert response.port == port
-            except (IndexError, ValueError, AssertionError) as e:
-                print(e)
-                await asyncio.sleep(0.33)
-                continue
+            item = WriteQueueItem(command=command, callback=self.update_state_callback)
+            self._write_queue.put(item)
+            await asyncio.sleep(0.25)
+            
+        def update_state_callback(self, item):
+            response = parse_response(item.response)
+            assert response.port == (self._config["physical_port"] * 2) - 1
             self._state["position"] = response.value
             if abs(self._state["position"] - self._state["destination"]) < 1.0:
                 self._busy = False
             if self._state["destination"] == 0.0:
                 if self._state["position"] < 1.0:
                     self._busy = False
-            await asyncio.sleep(0.1)
