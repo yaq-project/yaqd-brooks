@@ -1,8 +1,11 @@
 import asyncio
 import re
+from dataclasses import dataclass
+from typing import Any, Dict, Union, List
 
 import hart_protocol
 from yaqd_core import aserial, logging
+from yaqd_core.aserial import ASerial
 import serial  # type: ignore
 
 
@@ -50,3 +53,42 @@ class HartDispatcher:
             await worker.join()
         for task in self.tasks:
             task.cancel()
+
+
+@dataclass
+class WriteQueueItem:
+    command: bytes
+    response: bytes = b""
+    error: bool = False
+    callback: Any = None
+
+
+class SerialWriteQueue:
+    _instances: Dict[str, Any] = {}
+
+    def __init__(self, serial_port: str, baudrate: int, parity: int, stopbits: float):
+        self._ser = aserial.get_aserial(
+            serial_port, baudrate=baudrate, parity=parity, stopbits=stopbits
+        )
+        self._queue: List[WriteQueueItem] = list()
+        self._loop = asyncio.get_running_loop()
+        self._loop.create_task(self.consume())
+
+    def __new__(cls, serial_port: str, baudrate: int, parity: str, stopbits: float):
+        if serial_port not in cls._instances:
+            cls._instances[serial_port] = super(SerialWriteQueue, cls).__new__(cls)
+        return cls._instances[serial_port]
+
+    async def consume(self):
+        while True:
+            await asyncio.sleep(0.1)
+            if self._queue:
+                item = self._queue.pop(0)
+                self._ser.write(item.command)
+                item.response = await self._ser.areadline()
+                item.error = False  # for now
+                if item.callback is not None:
+                    item.callback(item)  # give self back to own callback
+
+    def put(self, item: WriteQueueItem):
+        self._queue.append(item)

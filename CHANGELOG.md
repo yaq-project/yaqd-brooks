@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Added
 - note of sla5800 series support
+- new daemon mfc 025x
 
 ## [2023.8.0]
 
