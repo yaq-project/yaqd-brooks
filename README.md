@@ -11,6 +11,7 @@ yaq daemons for Brooks industrial instrumentation
 
 This package contains the following daemon(s):
 
+- https://yaq.fyi/daemons/brooks-mfc-025x
 - https://yaq.fyi/daemons/brooks-mfc-gf
 
 Maintainers:
