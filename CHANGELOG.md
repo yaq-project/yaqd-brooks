@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2026.6.0]
+
 ### Added
 - note of sla5800 series support
 - new daemon mfc 025x
@@ -30,7 +32,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2023.8.0...main
+[Unreleased]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2026.6.0...main
+[2026.6.0]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2023.8.0...v2026.6.0
 [2023.8.0]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.1...v2023.8.0
 [2022.8.1]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.0...v2022.8.1
 [2022.8.0]: https://github.com/yaq-project/yaqd-brooks/-/tags/v2022.8.0
