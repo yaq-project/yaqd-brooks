@@ -81,11 +81,14 @@ class SerialWriteQueue:
 
     async def consume(self):
         while True:
-            item = self._queue.pop(0)
-            self._ser.write(command)
-            item.response = await self._ser.areadline()
-            item.error = False  # for now
-            item.callback(item)  # give self back to own callback
+            await asyncio.sleep(0.1)
+            if self._queue:
+                item = self._queue.pop(0)
+                self._ser.write(item.command)
+                item.response = await self._ser.areadline()
+                item.error = False  # for now
+                if item.callback is not None:
+                    item.callback(item)  # give self back to own callback
 
     def put(self, item: WriteQueueItem):
         self._queue.append(item)

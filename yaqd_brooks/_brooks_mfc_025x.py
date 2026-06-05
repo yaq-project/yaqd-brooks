@@ -24,6 +24,18 @@ from ._dispatcher import WriteQueueItem, SerialWriteQueue
 parameters = {"SP Rate": 1, "SP Full Scale": 9}
 
 
+def is_valid_checksum(raw):
+    string = raw.decode().strip()
+    lis = string.split(",")
+    information_frame = "," + ",".join(lis[1:-1]) + ","
+    su = sum(information_frame.encode()) % 256
+    checksum = lis[-1]
+    b = int(checksum, 16).to_bytes(1, byteorder="big", signed=False)
+    b = b"\xFF" + b
+    cs_int = int.from_bytes(b, byteorder="big", signed=True)
+    return (su + cs_int == 0)
+
+
 @dataclass
 class Response:
     predelimiter: str
@@ -37,12 +49,11 @@ class Response:
 
 
 def parse_response(raw: bytes) -> Response:
-    print("PARSE RESPONSE", raw)
     string = raw.decode().strip()
     lis = string.split(",")
     address, port = lis[1].split(".")
     checksum = lis[13]
-    # TODO CHECKSUM
+    checksum_valid = is_valid_checksum(raw)
     return Response(
         predelimiter=lis[0],
         address=int(address),
@@ -51,7 +62,7 @@ def parse_response(raw: bytes) -> Response:
         totalizer_value=float(lis[4]),
         value=float(lis[5]),
         checksum=checksum.encode(),
-        checksum_valid=True,
+        checksum_valid=checksum_valid,
     )
 
 
@@ -100,7 +111,7 @@ class BrooksMfc025x(
         if address:
             command += f"{address:05}"
         command += f".{port:02}P{parameter:02}={position:.2f}\r\n"
-        item = WriteQueueItem(command=command)
+        item = WriteQueueItem(command=command.encode())
         self._write_queue.put(item)
 
     def _transformed_to_relative(self, transformed_position):
@@ -117,12 +128,14 @@ class BrooksMfc025x(
             if address:
                 command += f"{address:05}"
             command += f".{port:02}K\r\n"
-            item = WriteQueueItem(command=command, callback=self.update_state_callback)
+            item = WriteQueueItem(command=command.encode(), callback=self.update_state_callback)
             self._write_queue.put(item)
-            await asyncio.sleep(0.25)
+            await asyncio.sleep(0.5)
 
-        def update_state_callback(self, item):
-            response = parse_response(item.response)
+    def update_state_callback(self, item):
+        response = parse_response(item.response)
+        try:
+            assert response.checksum_valid
             assert response.port == (self._config["physical_port"] * 2) - 1
             self._state["position"] = response.value
             if abs(self._state["position"] - self._state["destination"]) < 1.0:
@@ -130,3 +143,5 @@ class BrooksMfc025x(
             if self._state["destination"] == 0.0:
                 if self._state["position"] < 1.0:
                     self._busy = False
+        except Exception as e:
+            print(e)
