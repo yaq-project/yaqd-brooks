@@ -15,6 +15,7 @@ requires = ["hart-protocol>=2022.8.2",
             "numpy"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Natural Language :: English",
