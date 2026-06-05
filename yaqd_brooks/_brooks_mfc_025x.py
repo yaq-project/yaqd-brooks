@@ -31,9 +31,9 @@ def is_valid_checksum(raw):
     su = sum(information_frame.encode()) % 256
     checksum = lis[-1]
     b = int(checksum, 16).to_bytes(1, byteorder="big", signed=False)
-    b = b"\xFF" + b
+    b = b"\xff" + b
     cs_int = int.from_bytes(b, byteorder="big", signed=True)
-    return (su + cs_int == 0)
+    return su + cs_int == 0
 
 
 @dataclass
