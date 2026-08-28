@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed
+- 025x daemon now robust to partial or incomplete messages
+- 025x daemon now reads "nan" if fails to communicate for 5 consecutive minutes
+
 ## [2026.6.0]
 
 ### Added
