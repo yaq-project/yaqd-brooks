@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2026.8.0]
+
 ### Fixed
 - 025x daemon now robust to partial or incomplete messages
 - 025x daemon now reads "nan" if fails to communicate for 5 consecutive minutes
@@ -36,7 +38,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2026.6.0...main
+[Unreleased]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2026.8.0...main
+[2026.8.0]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2026.6.0...v2026.8.0
 [2026.6.0]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2023.8.0...v2026.6.0
 [2023.8.0]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.1...v2023.8.0
 [2022.8.1]: https://github.com/yaq-project/yaqd-brooks/-/compare/v2022.8.0...v2022.8.1
