@@ -1,6 +1,7 @@
 __all__ = ["BrooksMfc025x"]
 
 
+import time
 import asyncio
 from dataclasses import dataclass
 from typing import Dict, Any, List
@@ -86,6 +87,7 @@ class BrooksMfc025x(
         )
         self._units = "ml/min"
         self._native_units = "ml/min"
+        self._last_successful_communication = time.time()
 
     def close(self):
         self._ser.flush()
@@ -133,10 +135,12 @@ class BrooksMfc025x(
             await asyncio.sleep(0.5)
 
     def update_state_callback(self, item):
-        response = parse_response(item.response)
         try:
+            assert not item.error
+            response = parse_response(item.response)
             assert response.checksum_valid
             assert response.port == (self._config["physical_port"] * 2) - 1
+            self._last_successful_communication = time.time()
             self._state["position"] = response.value
             if abs(self._state["position"] - self._state["destination"]) < 1.0:
                 self._busy = False
@@ -145,3 +149,5 @@ class BrooksMfc025x(
                     self._busy = False
         except Exception as e:
             print(e)
+            if time.time() - self._last_successful_communication > 5 * 60:  # 5 minutes:
+                self._state["position"] = np.nan

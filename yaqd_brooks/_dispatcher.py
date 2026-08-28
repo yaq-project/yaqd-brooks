@@ -85,8 +85,11 @@ class SerialWriteQueue:
             if self._queue:
                 item = self._queue.pop(0)
                 self._ser.write(item.command)
-                item.response = await self._ser.areadline()
-                item.error = False  # for now
+                try:
+                    item.response = await asyncio.wait_for(self._ser.areadline(), timeout=1)
+                    item.error = False
+                except (asyncio.exceptions.TimeoutError, asyncio.exceptions.CancelledError):
+                    item.error = True
                 if item.callback is not None:
                     item.callback(item)  # give self back to own callback
 
